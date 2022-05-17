@@ -1,0 +1,25 @@
+# Func: Telegram send message
+:local TGSendMessage do={
+    :local tgUrl "https://api.telegram.org/bot$Token/sendMessage?chat_id=$ChatID&text=$Text&parse_mode=html&disable_web_page_preview=True";
+    /tool fetch http-method=get url=$tgUrl keep-result=no;
+}
+
+# Constants
+:local TelegramBotToken "<TOKEN>";
+:local TelegramChatID "<CHAT ID>";
+:local DeviceName [/system identity get name];
+:local TelegramMessageText "\F0\9F\9F\A5 <b> $DeviceName:</b>  ";
+
+# Check Update
+:local MyVar [/system package update check-for-updates as-value];
+:local InstVer ($MyVar -> "installed-version");
+:local LatVer ($MyVar -> "latest-version");
+
+:if ($InstVer = $LatVer) do={
+    :log info "System is already up to date.";
+} else={
+    :set TelegramMessageText  "$TelegramMessageText New version $LatVer is available! [Installed version $InstVer].";
+    $TGSendMessage Token=$TelegramBotToken ChatID=$TelegramChatID Text=$TelegramMessageText;
+
+    :log info "System is out of date!";
+}
